@@ -34,11 +34,19 @@ async function run() {
             res.send({ token })
         })
 
-        app.get("/userData", async (req,res)=>{
-            const query = {};
+        app.get("/userData/:email", async (req,res)=>{
+            const email=req.params.email;
+            const query = {email};
             const cursor = dataCollection.find(query);
             const data = await cursor.toArray();
             res.send(data)
+
+        })
+        app.delete("/delete/:id", async (req,res)=>{
+            const id=req.params.id;
+            const query ={_id: ObjectId(id)};
+            const deleted =await dataCollection.deleteOne(query);
+            res.send(deleted)
 
         })
 
@@ -46,7 +54,6 @@ async function run() {
             const user = req.body;  
             const accessToken=req.body.token;
             const getEmail=req.body.email;
-            console.log(user, accessToken, getEmail);
             try {
                 const decoded =await  jwt.verify(accessToken,  process.env.DB_JWTTOKEN, function(err, decoded) {
                     let email ;
@@ -82,7 +89,11 @@ async function run() {
 }
 run().catch(console.dir);
 
-
+app.get('/', (req, res) =>{
+    res.send('Hello World!')
+} )
 app.listen(port, () => {
     console.log(`server is running on port ${port}`);
 })
+
+// https://agile-atoll-35564.herokuapp.com/ 
